@@ -1,5 +1,5 @@
 <?php
-$servidor = "localhost";  // O IP del servidor
+$servidor = '34.41.140.189';  // IP del servidor de google cloud
 $usuario = "root";        // Tu usuario de MySQL
 $clave = "";             // Tu clave de MySQL
 $base_de_datos = "sistema_integral";  // Nombre de la base de datos
