@@ -30,7 +30,7 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
     <title>Reportes Detallados</title>
     <link rel="stylesheet" href="../assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -41,7 +41,6 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             flex-direction: column;
             min-height: 100vh;
         }
-
         .sidebar {
             position: fixed;
             width: 200px;
@@ -50,7 +49,6 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             color: #fff;
             padding-top: 20px;
         }
-
         .sidebar a {
             display: block;
             padding: 10px 15px;
@@ -59,17 +57,14 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             font-size: 14px;
             transition: 0.3s;
         }
-
         .sidebar a:hover {
             background-color: #16a085;
         }
-
         .main-content {
             margin-left: 220px;
             padding: 20px;
             flex: 1;
         }
-
         .container {
             max-width: 900px;
             margin: 20px auto;
@@ -78,22 +73,18 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
         h1, h2 {
             text-align: center;
             color: #2c3e50;
         }
-
         ul {
             list-style: none;
             padding: 0;
         }
-
         ul li {
             margin: 10px 0;
             font-size: 18px;
         }
-
         .chart-container {
             margin: 20px 0;
             padding: 20px;
@@ -102,11 +93,9 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
         }
-
         .chart-container canvas {
             max-height: 300px;
         }
-
         button {
             margin-top: 10px;
             padding: 10px;
@@ -117,11 +106,9 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             cursor: pointer;
             transition: 0.3s;
         }
-
         button:hover {
             background-color: #2980b9;
         }
-
         footer {
             background-color: #2c3e50;
             color: white;
@@ -132,8 +119,10 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
     </style>
 </head>
 <body>
+    <!-- Botón de Menú -->
+    <button class="menu-button" id="menuButton">☰</button>
     <div class="sidebar">
-        <a href="../index.php">Inicio</a>
+        <a href="../index.html">Inicio</a>
         <a href="estadisticas.php">Estadísticas</a>
         <a href="../productos/productos.php">Productos</a>
         <a href="../ventas/ventas.php">Ventas</a>
@@ -169,6 +158,7 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
         const totalProveedores = <?php echo $totalProveedores; ?>;
         const totalCompras = <?php echo $totalCompras; ?>;
 
+        // Configuración del gráfico 1 (Pie Chart)
         const ctx1 = document.getElementById('generalChart').getContext('2d');
         new Chart(ctx1, {
             type: 'pie',
@@ -182,6 +172,7 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             options: { responsive: true, plugins: { legend: { position: 'top' } } }
         });
 
+        // Configuración del gráfico 2 (Bar Chart)
         const ctx2 = document.getElementById('comparativeChart').getContext('2d');
         new Chart(ctx2, {
             type: 'bar',
@@ -200,11 +191,22 @@ $totalCompras = mysqli_fetch_assoc($resultCompras)['total_compras'];
             }
         });
 
-        function downloadChart(chartId, filename) {
+        // Función para descargar gráfico como PDF
+        async function downloadChart(chartId, filename) {
+            const { jsPDF } = window.jspdf; // Obtén la instancia de jsPDF
             const canvas = document.getElementById(chartId);
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF();
-            pdf.addImage(imgData, 'PNG', 15, 15, 180, 100);
+            
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4',
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth - 20, pdfHeight - 20);
             pdf.save(filename);
         }
     </script>
